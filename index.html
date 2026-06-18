@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>CastorFood</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --orange: #E8400A;
+      --orange-light: #F05A20;
+      --black: #111111;
+      --gray-light: #F5F5F5;
+      --gray-mid: #E0E0E0;
+      --gray-text: #6B6B6B;
+      --white: #FFFFFF;
+      --font: 'Inter', system-ui, sans-serif;
+    }
+
+    body { font-family: var(--font); color: var(--black); background: var(--white); }
+
+    /* ── NAV ── */
+    nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 48px;
+      height: 64px;
+      background: var(--white);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      border-bottom: 1px solid var(--gray-mid);
+      gap: 16px;
+    }
+
+    .logo {
+      font-size: 1.35rem;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      color: var(--black);
+      text-decoration: none;
+      white-space: nowrap;
+    }
+    .logo span { color: var(--orange); }
+
+    .nav-links {
+      display: flex;
+      gap: 32px;
+      list-style: none;
+    }
+    .nav-links a {
+      font-size: 0.9rem;
+      color: var(--black);
+      text-decoration: none;
+      font-weight: 500;
+      transition: color .2s;
+      white-space: nowrap;
+    }
+    .nav-links a:hover { color: var(--orange); }
+
+    .nav-search {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--gray-light);
+      border: 1px solid var(--gray-mid);
+      border-radius: 8px;
+      padding: 8px 14px;
+      width: 240px;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+    .nav-search input {
+      border: none;
+      background: transparent;
+      font-size: 0.875rem;
+      color: var(--black);
+      outline: none;
+      width: 100%;
+      cursor: pointer;
+    }
+    .nav-search input::placeholder { color: #999; }
+    .nav-search svg { flex-shrink: 0; color: #999; }
+
+    /* Hamburger */
+    .hamburger {
+      display: none;
+      flex-direction: column;
+      gap: 5px;
+      cursor: pointer;
+      padding: 4px;
+      background: none;
+      border: none;
+    }
+    .hamburger span {
+      display: block;
+      width: 22px;
+      height: 2px;
+      background: var(--black);
+      border-radius: 2px;
+      transition: all .3s;
+    }
+
+    /* Mobile menu */
+    .mobile-menu {
+      display: none;
+      position: fixed;
+      top: 64px;
+      left: 0; right: 0;
+      background: var(--white);
+      border-bottom: 1px solid var(--gray-mid);
+      padding: 20px 24px;
+      z-index: 99;
+      flex-direction: column;
+      gap: 16px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    }
+    .mobile-menu.open { display: flex; }
+    .mobile-menu a {
+      font-size: 1rem;
+      font-weight: 500;
+      color: var(--black);
+      text-decoration: none;
+      padding: 6px 0;
+      border-bottom: 1px solid var(--gray-light);
+    }
+    .mobile-menu a:hover { color: var(--orange); }
+
+    /* ── HERO ── */
+    .hero {
+      position: relative;
+      height: 100vh;
+      overflow: hidden;
+    }
+    .hero img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center 30%;
+      filter: brightness(0.55);
+    }
+    .hero-content {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 0 64px;
+      max-width: 620px;
+    }
+    .hero-content h1 {
+      font-size: clamp(1.8rem, 4vw, 3rem);
+      font-weight: 800;
+      color: var(--white);
+      line-height: 1.1;
+      letter-spacing: -1px;
+      margin-bottom: 20px;
+    }
+    .hero-content h1 .accent { color: var(--orange); }
+    .hero-content p {
+      font-size: 1rem;
+      color: rgba(255,255,255,0.85);
+      line-height: 1.6;
+      margin-bottom: 32px;
+      max-width: 420px;
+    }
+    .hero-actions {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      margin-bottom: 40px;
+      flex-wrap: wrap;
+    }
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--orange);
+      color: var(--white);
+      font-weight: 600;
+      font-size: 0.9rem;
+      padding: 12px 24px;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      text-decoration: none;
+      transition: background .2s, transform .15s;
+    }
+    .btn-primary:hover { background: var(--orange-light); transform: translateY(-1px); }
+    .btn-secondary {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255,255,255,0.15);
+      color: var(--white);
+      font-weight: 600;
+      font-size: 0.9rem;
+      padding: 12px 24px;
+      border-radius: 8px;
+      border: 1.5px solid rgba(255,255,255,0.5);
+      cursor: pointer;
+      text-decoration: none;
+      backdrop-filter: blur(4px);
+      transition: background .2s;
+    }
+    .btn-secondary:hover { background: rgba(255,255,255,0.25); }
+
+    .hero-stats { display: flex; gap: 40px; }
+    .stat .val {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--white);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .stat .val .star { color: #FFC107; }
+    .stat .lbl { font-size: 0.75rem; color: rgba(255,255,255,0.65); margin-top: 2px; }
+
+    /* ── RESTAURANTS SECTION ── */
+    .section { padding: 64px 48px; }
+    .section-eyebrow {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--gray-text);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+    .section-title {
+      font-size: 1.75rem;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      margin-bottom: 24px;
+    }
+
+    /* Filters */
+    .filters {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 28px;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .filter-tabs {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .filter-btn {
+      padding: 7px 18px;
+      border-radius: 8px;
+      border: 1.5px solid var(--gray-mid);
+      background: var(--white);
+      font-size: 0.875rem;
+      font-weight: 500;
+      cursor: pointer;
+      color: var(--black);
+      transition: all .2s;
+    }
+    .filter-btn.active, .filter-btn:hover {
+      background: var(--orange);
+      border-color: var(--orange);
+      color: var(--white);
+    }
+    .ver-todos {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--orange);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      white-space: nowrap;
+    }
+    .ver-todos:hover { text-decoration: underline; }
+
+    /* Grid */
+    .restaurants-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+    }
+    .restaurant-card {
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid var(--gray-mid);
+      background: var(--white);
+      transition: box-shadow .2s, transform .2s;
+    }
+    .restaurant-card:hover {
+      box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+      transform: translateY(-3px);
+    }
+    .card-img-placeholder {
+      width: 100%;
+      height: 180px;
+      background: var(--gray-light);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2.5rem;
+    }
+    .card-body { padding: 14px 16px; }
+    .card-name { font-size: 0.95rem; font-weight: 600; margin-bottom: 2px; }
+    .card-cat { font-size: 0.8rem; color: var(--gray-text); margin-bottom: 10px; }
+    .card-meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+    }
+    .card-rating {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--orange);
+    }
+    .card-rating .star { color: #FFC107; }
+    .card-time {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 0.8rem;
+      color: var(--gray-text);
+    }
+    .card-link {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--orange);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 2px;
+      white-space: nowrap;
+    }
+    .card-link:hover { text-decoration: underline; }
+
+    /* ── HOW IT WORKS ── */
+    .how-section {
+      background: var(--gray-light);
+      border-radius: 24px;
+      margin: 0 48px 64px;
+      padding: 56px 56px;
+    }
+    .how-eyebrow {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--orange);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+    .how-title {
+      font-size: 1.75rem;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      margin-bottom: 48px;
+    }
+    .how-steps {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 32px;
+    }
+    .step-num {
+      font-size: 2.5rem;
+      font-weight: 800;
+      color: var(--gray-mid);
+      line-height: 1;
+      margin-bottom: 12px;
+    }
+    .step-title { font-size: 1rem; font-weight: 700; margin-bottom: 8px; }
+    .step-desc { font-size: 0.875rem; color: var(--gray-text); line-height: 1.6; }
+
+    /* ── FOOTER ── */
+    footer { padding: 48px 48px 24px; border-top: 1px solid var(--gray-mid); }
+    .footer-top {
+      display: grid;
+      grid-template-columns: 1.5fr 1fr 1fr 1fr;
+      gap: 40px;
+      margin-bottom: 40px;
+    }
+    .footer-brand .logo { display: block; margin-bottom: 10px; }
+    .footer-brand p { font-size: 0.875rem; color: var(--gray-text); }
+    .footer-col h4 {
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--gray-text);
+      margin-bottom: 16px;
+    }
+    .footer-col ul { list-style: none; }
+    .footer-col li { margin-bottom: 10px; }
+    .footer-col a { font-size: 0.875rem; color: var(--black); text-decoration: none; }
+    .footer-col a:hover { color: var(--orange); }
+    .footer-bottom {
+      border-top: 1px solid var(--gray-mid);
+      padding-top: 20px;
+      font-size: 0.8rem;
+      color: var(--gray-text);
+    }
+
+    /* ── SEARCH MODAL ── */
+    .search-modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 200;
+      align-items: flex-start;
+      justify-content: center;
+      padding-top: 80px;
+      padding-left: 16px;
+      padding-right: 16px;
+    }
+    .search-modal.open { display: flex; }
+    .search-box {
+      background: var(--white);
+      border-radius: 14px;
+      padding: 20px;
+      width: 100%;
+      max-width: 560px;
+      animation: slideUp .25s ease;
+    }
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .search-input-wrap {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border-bottom: 2px solid var(--orange);
+      padding-bottom: 10px;
+      margin-bottom: 16px;
+    }
+    .search-input-wrap input {
+      border: none;
+      outline: none;
+      font-size: 1rem;
+      width: 100%;
+    }
+    .search-results { list-style: none; }
+    .search-results li {
+      padding: 10px 6px;
+      border-bottom: 1px solid var(--gray-mid);
+      font-size: 0.9rem;
+      cursor: pointer;
+    }
+    .search-results li:hover { color: var(--orange); }
+    .search-results li span { font-size: 0.8rem; color: var(--gray-text); margin-left: 8px; }
+
+    /* ── RESPONSIVE ── */
+    .card-img {
+      width: 100%;
+      height: 180px;
+      object-fit: cover;
+      display: block;
+    }
+
+    @media (max-width: 900px) {
+      nav { padding: 0 24px; }
+      .nav-links { display: none; }
+      .nav-search { display: none; }
+      .hamburger { display: flex; }
+
+      .hero-content { padding: 0 28px; max-width: 100%; }
+
+      .section { padding: 48px 24px; }
+
+      .restaurants-grid { grid-template-columns: repeat(2, 1fr); gap: 16px; }
+
+      .how-section { margin: 0 24px 48px; padding: 36px 28px; }
+      .how-steps { grid-template-columns: 1fr; gap: 28px; }
+
+      .footer-top { grid-template-columns: 1fr 1fr; gap: 28px; }
+      footer { padding: 36px 24px 20px; }
+    }
+
+    @media (max-width: 560px) {
+      .hero-content h1 { font-size: 1.6rem; }
+      .hero-content p { font-size: 0.9rem; }
+      .btn-primary, .btn-secondary { font-size: 0.85rem; padding: 10px 18px; }
+
+      .restaurants-grid { grid-template-columns: 1fr; }
+
+      .filters { flex-direction: column; align-items: flex-start; }
+
+      .footer-top { grid-template-columns: 1fr; gap: 24px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="#" class="logo">castor<span>food</span></a>
+  <ul class="nav-links">
+    <li><a href="#restaurantes">Locales</a></li>
+    <li><a href="#como-funciona">Como funciona?</a></li>
+  </ul>
+  <div class="nav-search" id="navSearch">
+    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+      <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+    </svg>
+    <input type="text" placeholder="Buscar antojo..." readonly />
+  </div>
+  <button class="hamburger" id="hamburger" aria-label="Menú">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<!-- MOBILE MENU -->
+<div class="mobile-menu" id="mobileMenu">
+  <a href="#restaurantes" onclick="closeMobileMenu()">Locales</a>
+  <a href="#como-funciona" onclick="closeMobileMenu()">Como funciona?</a>
+  <a href="#" onclick="openSearch(); closeMobileMenu();">🔍 Buscar antojo...</a>
+</div>
+
+<!-- HERO -->
+<section class="hero">
+  <img src="hero-img-castorfood.png" alt="Comida deliciosa" />
+  <div class="hero-content">
+    <h1>
+      Ordena en minutos.<br>
+      <span class="accent">Recoge</span> al instante.
+    </h1>
+    <p>Elige tu local favorito, personaliza tu pedido y recógelo cuando esté listo. Sin filas, sin esperas.</p>
+    <div class="hero-actions">
+      <a href="#restaurantes" class="btn-primary">
+        Explorar locales
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+          <path d="M5 12h14M12 5l7 7-7 7"/>
+        </svg>
+      </a>
+      <a href="#como-funciona" class="btn-secondary">Cómo funciona?</a>
+    </div>
+    <div class="hero-stats">
+      <div class="stat">
+        <div class="val"><span class="star">★</span> 4.8</div>
+        <div class="lbl">Valoración media</div>
+      </div>
+      <div class="stat">
+        <div class="val">8 min</div>
+        <div class="lbl">Tiempo Aproximado</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- RESTAURANTS -->
+<section class="section" id="restaurantes">
+  <p class="section-eyebrow">Cerca de ti</p>
+  <h2 class="section-title">Restaurantes disponibles</h2>
+
+  <div class="filters">
+    <div class="filter-tabs">
+      <button class="filter-btn active" data-filter="all">Todo</button>
+      <button class="filter-btn" data-filter="tacos">Tacos</button>
+      <button class="filter-btn" data-filter="tortas">Tortas</button>
+      <button class="filter-btn" data-filter="antojos">Antojos</button>
+      <button class="filter-btn" data-filter="gorditas">Gorditas</button>
+    </div>
+    <a href="#" class="ver-todos">
+      Ver todos
+      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+        <path d="M5 12h14M12 5l7 7-7 7"/>
+      </svg>
+    </a>
+  </div>
+
+  <div class="restaurants-grid" id="restaurantsGrid"></div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section id="como-funciona">
+  <div class="how-section">
+    <p class="how-eyebrow">Simple y rápido</p>
+    <h2 class="how-title">Cómo funciona?</h2>
+    <div class="how-steps">
+      <div class="step">
+        <div class="step-num">01</div>
+        <div class="step-title">Elige tu local</div>
+        <p class="step-desc">Explora locales cercanos y sus menús en tiempo real desde cualquier dispositivo.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">02</div>
+        <div class="step-title">Personaliza tu pedido</div>
+        <p class="step-desc">Agrega lo que quieras o productos que eligas.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">03</div>
+        <div class="step-title">Pasa a recoger</div>
+        <p class="step-desc">Tu comida estará lista cuando llegues. Sin colas, sin esperas innecesarias.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-top">
+    <div class="footer-brand">
+      <a href="#" class="logo">castor<span>food</span></a>
+      <p>Comer bien no debería quitarte tiempo.</p>
+    </div>
+    <div class="footer-col">
+      <h4>Plataforma</h4>
+      <ul>
+        <li><a href="#restaurantes">Locales</a></li>
+        <li><a href="#">Categorías</a></li>
+        <li><a href="#">Buscar</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Nosotros</h4>
+      <ul>
+        <li><a href="#">Sobre castorfood</a></li>
+        <li><a href="#como-funciona">Como funciona?</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Soporte</h4>
+      <ul>
+        <li><a href="#">Ayuda</a></li>
+        <li><a href="#">Reportar problema</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    © 2026 CastorFood. Todos los derechos reservados.
+  </div>
+</footer>
+
+<!-- SEARCH MODAL -->
+<div class="search-modal" id="searchModal">
+  <div class="search-box">
+    <div class="search-input-wrap">
+      <svg width="18" height="18" fill="none" stroke="#999" stroke-width="2" viewBox="0 0 24 24">
+        <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+      </svg>
+      <input type="text" placeholder="Buscar antojo..." id="searchRealInput" />
+    </div>
+    <ul class="search-results" id="searchResults"></ul>
+  </div>
+</div>
+
+<script>
+  const restaurants = [
+    { id:1, name:'El Menjurge',     cat:'Antojos y más',                filter:'antojos',  rating:4.8, time:'7-10 min', img:'https://images.unsplash.com/photo-1599974579688-8dbdd335c77f?w=600&q=80' },
+    { id:2, name:'Tortas Chigol',   cat:'Tortas',                       filter:'tortas',   rating:4.8, time:'7-15 min', img:'https://images.unsplash.com/photo-1553979459-d2229ba7433b?w=600&q=80' },
+    { id:3, name:'Tacos El Rojas',  cat:'Tacos, Carnitas y más',        filter:'tacos',    rating:4.8, time:'7-05 min', img:'https://images.unsplash.com/photo-1565299585323-38d6b0865b47?w=600&q=80' },
+    { id:4, name:'Tacos UTP Chato', cat:'Taco de Azada, Longaniza y más', filter:'tacos',  rating:4.8, time:'7-10 min', img:'https://images.unsplash.com/photo-1551504734-5ee1c4a1479b?w=600&q=80' },
+    { id:5, name:'El Menjurge',     cat:'Antojos y más',                filter:'antojos',  rating:4.8, time:'7-15 min', img:'https://images.unsplash.com/photo-1599974579688-8dbdd335c77f?w=600&q=80' },
+    { id:6, name:'El Menjurge',     cat:'Antojos y más',                filter:'antojos',  rating:4.8, time:'7-05 min', img:'https://images.unsplash.com/photo-1582234372722-50d7ccc30ebd?w=600&q=80' },
+  ];
+
+  function renderCards(filter) {
+    const grid = document.getElementById('restaurantsGrid');
+    const list = filter === 'all' ? restaurants : restaurants.filter(r => r.filter === filter);
+    grid.innerHTML = list.map(r => `
+      <div class="restaurant-card">
+        <img class="card-img" src="${r.img}" alt="${r.name}" loading="lazy" />
+        <div class="card-body">
+          <div class="card-name">${r.name}</div>
+          <div class="card-cat">${r.cat}</div>
+          <div class="card-meta">
+            <span class="card-rating"><span class="star">★</span> ${r.rating}</span>
+            <span class="card-time">
+              <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+              ${r.time}
+            </span>
+            <a href="#" class="card-link">Ver menú →</a>
+          </div>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  // Filters
+  document.querySelectorAll('.filter-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      renderCards(btn.dataset.filter);
+    });
+  });
+
+  // Hamburger
+  const hamburger = document.getElementById('hamburger');
+  const mobileMenu = document.getElementById('mobileMenu');
+  hamburger.addEventListener('click', () => mobileMenu.classList.toggle('open'));
+  function closeMobileMenu() { mobileMenu.classList.remove('open'); }
+
+  // Search
+  const searchModal = document.getElementById('searchModal');
+  const searchRealInput = document.getElementById('searchRealInput');
+
+  function openSearch() {
+    searchModal.classList.add('open');
+    setTimeout(() => searchRealInput.focus(), 50);
+  }
+
+  document.getElementById('navSearch').addEventListener('click', openSearch);
+  searchModal.addEventListener('click', e => {
+    if (e.target === searchModal) {
+      searchModal.classList.remove('open');
+      searchRealInput.value = '';
+      document.getElementById('searchResults').innerHTML = '';
+    }
+  });
+
+  searchRealInput.addEventListener('input', () => {
+    const q = searchRealInput.value.toLowerCase().trim();
+    const results = document.getElementById('searchResults');
+    if (!q) { results.innerHTML = ''; return; }
+    const filtered = restaurants.filter(r =>
+      r.name.toLowerCase().includes(q) || r.cat.toLowerCase().includes(q)
+    );
+    results.innerHTML = filtered.length
+      ? filtered.map(r => `<li><strong>${r.name}</strong><span>${r.cat} · ${r.time}</span></li>`).join('')
+      : `<li style="color:#999;cursor:default">Sin resultados para "${q}"</li>`;
+  });
+
+  // Smooth scroll
+  document.querySelectorAll('a[href^="#"]').forEach(a => {
+    a.addEventListener('click', e => {
+      const href = a.getAttribute('href');
+      if (href === '#') return;
+      const target = document.querySelector(href);
+      if (target) { e.preventDefault(); target.scrollIntoView({ behavior: 'smooth' }); }
+    });
+  });
+
+  renderCards('all');
+</script>
+</body>
+</html>
